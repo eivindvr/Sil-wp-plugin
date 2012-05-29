@@ -146,4 +146,15 @@ echo $UNIQUE;
 }
 add_shortcode( 'silp', 'silp_embed' );
 
+
+
+//media_button
+function silp_media_button()
+{
+    print "<img src='http://shootitlive.com/favicon.ico' alt='Add VideofyMe Video' />";
+}
+
+# Add a button above the editor
+add_action('media_buttons', 'silp_media_button', 22);
+
 ?>
