@@ -63,7 +63,7 @@ echo "</option>";
 		</select>
 	</p>
 	
-<?php echo 	$silp_call;?>
+<!--<?php echo 	$silp_call;?>-->
 	
 	
 
@@ -148,13 +148,20 @@ add_shortcode( 'silp', 'silp_embed' );
 
 
 
-//media_button
+//button
 function silp_media_button()
 {
-    print "<img src='http://shootitlive.com/favicon.ico' alt='Add VideofyMe Video' />";
+    //print "<img src='http://shootitlive.com/favicon.ico' alt='Shootitlive' />";
+
+print "<a href='" . esc_url( get_upload_iframe_src('$type') ) . "' id='add_silp' class='thickbox' title='Choose Shootitlive project'><img src='" . esc_url( content_url('/plugins/shootitlive/sil.ico') ) . "' alt='Choose Shootitlive project' /></a>";
 }
 
-# Add a button above the editor
+
+
+# Add a button above the wysiwyg editor
 add_action('media_buttons', 'silp_media_button', 22);
+
+
+
 
 ?>
