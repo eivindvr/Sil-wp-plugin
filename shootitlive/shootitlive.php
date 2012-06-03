@@ -9,40 +9,41 @@ Author URI: http://www.shootitlive.com
 */
 
 
-//include("ob_settings_v1_2.php"); 
-include("shootitlive_options.php"); 
+// Delete options table entries ONLY when plugin deactivated AND deleted
+function posk_delete_plugin_options() {
+	delete_option('posk_options');
+}
 
 
+// Add meta_box
 add_action( 'add_meta_boxes', 'cd_meta_box_add' );
 function cd_meta_box_add()
 {
-	add_meta_box( 'my-meta-box-id', 'Shootitlive', 'cd_meta_box_cb', 'post', 'normal', 'high' );
+	add_meta_box( 'my-meta-box-id', 'Shootitlive', 'cd_meta_box_cb', 'post', 'side', 'high' );
 }
 
+
+//API call & drop down menu
 function cd_meta_box_cb( $post )
 {
 	$values = get_post_custom( $post->ID );
 	$selected = isset( $values['my_meta_box_select'] ) ? esc_attr( $values['my_meta_box_select'][0] ) : '';
-	//$json_data2 = file_get_contents('https://toolbox.shootitlive.com/projects/?client=aftonbladet&token=0293c072e468f3c2b1e0dfa49c324e205717c521');
-	
-    $options = get_option('silp_options');
+	$options = get_option('silp_options');
     $silp_client = $options['silp_txt_one'];
     $silp_key = $options['silp_txt_two'];
-
-
 	
 	$silp_call = "https://api.shootitlive.com/v1/projects/?client=$silp_client&token=$silp_key&embed=true";
 	
-		$json_data2 = file_get_contents($silp_call);
+	$json_data2 = file_get_contents($silp_call);
 	$obj2=json_decode($json_data2, true);
 	
 	wp_nonce_field( 'my_meta_box_nonce', 'meta_box_nonce' );
 ?>
 		
 	<p>
-		<label for="my_meta_box_select">Projects:</label>
+		<!--<label for="my_meta_box_select">Select a project:</label>-->
 		<select name="my_meta_box_select" id="my_meta_box_select">
-	
+	<option>Select a project:</option>
 <?php
 foreach($obj2[$silp_client] as $p)
 {
@@ -63,10 +64,6 @@ echo "</option>";
 		</select>
 	</p>
 	
-<!--<?php echo 	$silp_call;?>-->
-	
-	
-
  	
 <?php	
 
@@ -74,6 +71,7 @@ echo "</option>";
 }
 
 
+// SAVE the meta_box value
 add_action( 'save_post', 'cd_meta_box_save' );
 function cd_meta_box_save( $post_id )
 {
@@ -105,7 +103,7 @@ function cd_meta_box_save( $post_id )
 	update_post_meta( $post_id, 'my_meta_box_check', $chk );
 }
 
-
+//Random string to embedcode
 function random_string( )
   {
     $character_set_array = array( );
@@ -148,20 +146,89 @@ add_shortcode( 'silp', 'silp_embed' );
 
 
 
-//button
-function silp_media_button()
-{
-    //print "<img src='http://shootitlive.com/favicon.ico' alt='Shootitlive' />";
+//Hook the_content
 
-print "<a href='" . esc_url( get_upload_iframe_src('$type') ) . "' id='add_silp' class='thickbox' title='Choose Shootitlive project'><img src='" . esc_url( content_url('/plugins/shootitlive/sil.ico') ) . "' alt='Choose Shootitlive project' /></a>";
+add_filter('the_content', 'silp_content');
+
+function silp_content($content = '') {
+			$content .= do_shortcode("[silp]");
+			return $content;
+		}
+		
+		
+
+
+//Settings page content
+
+add_action("admin_menu","jcorgcr_create_testmenu");
+function jcorgcr_create_testmenu(){
+add_menu_page(/*page title*/'Dashboard', /*Menu Title*/'Shootitlive',/*access*/'administrator', 'shootitlive', 'silp_dashboard_page',plugins_url('sil.ico', __FILE__));
+
+add_submenu_page( 'shootitlive', 'Settings', 'Settings', 'administrator', 'dashboard', 'jcorgcr_test_page' );
+
 }
+function jcorgcr_test_page() { /*handler for above menu item*/
+
+?>
+	<div class="wrap">
+		
+		<!-- Display Plugin Icon, Header, and Description -->
+		<div class="icon32" id="icon-options-general"><br></div>
+		<h2>Shootitlive</h2>
+
+		<!-- Beginning of the Plugin Options Form -->
+		<form method="post" action="options.php">
+			<?php settings_fields('silp_plugin_options'); ?>
+			<?php $options = get_option('silp_options'); ?>
+
+			<!-- Table Structure Containing Form Controls -->
+			<!-- Each Plugin Option Defined on a New Table Row -->
+			<table class="form-table">
+
+									<!-- Textbox Control -->
+				<tr>
+					<th scope="row">Enter Organisation Name:</th>
+					<td>
+						<input type="text" size="57" name="silp_options[silp_txt_one]" value="<?php echo $options['silp_txt_one']; ?>" />
+					</td>
+				</tr>
+				
+				<tr>
+					<th scope="row">Enter API Key:</th>
+					<td>
+						<input type="text" size="57" name="silp_options[silp_txt_two]" value="<?php echo $options['silp_txt_two']; ?>" />
+					</td>
+				</tr>
+
+			</table>
+			<p class="submit">
+			<input type="submit" class="button-primary" value="<?php _e('Save Changes') ?>" />
+			</p>
+		</form>
+
+		<p style="margin-top:15px;">
+			<p style="font-style: italic;font-weight: bold;color: #26779a;">If you have found this starter kit at all useful, please consider making a <a href="https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=XKZXD2BHQ5UB2" target="_blank" style="color:#72a1c6;">donation</a>. Thanks.</p>
+		</p>
+
+	</div>
+		
+<?php } 
 
 
+function silp_dashboard_page() { /*handler for above menu item*/
 
-# Add a button above the wysiwyg editor
-add_action('media_buttons', 'silp_media_button', 22);
+?>
+	<iframe src="http://admin.shootitlive.com/projects" frameBorder="0" marginwidth="0px" marginheight="0px" scrolling="yes" width="100%" height="100%"></iframe>
 
+<?php }
 
+// Sanitize and validate input. Accepts an array, return a sanitized array.
+function silp_validate_options($input) {
+	 // strip html from textboxes
+	$input['silp_txt_one'] =  wp_filter_nohtml_kses($input['silp_txt_one']); // Sanitize textarea input (strip html tags, and escape characters)
+	$input['silp_txt_two'] =  wp_filter_nohtml_kses($input['silp_txt_two']); // Sanitize textbox input (strip html tags, and escape characters)
+	return $input;
+}
 
 
 ?>
