@@ -11,23 +11,23 @@ Author URI: http://www.shootitlive.com
 
 // Delete options table entries ONLY when plugin deactivated AND deleted
 function posk_delete_plugin_options() {
-	delete_option('posk_options');
+	delete_option('silp_options');
 }
 
 
 // Add meta_box
-add_action( 'add_meta_boxes', 'cd_meta_box_add' );
-function cd_meta_box_add()
+add_action( 'add_meta_boxes', 'silp_meta_box_add' );
+function silp_meta_box_add()
 {
-	add_meta_box( 'my-meta-box-id', 'Shootitlive', 'cd_meta_box_cb', 'post', 'side', 'high' );
+	add_meta_box( 'silp-meta-box-id', 'Shootitlive', 'silp_meta_box_cb', 'post', 'side', 'high' );
 }
 
 
 //API call & drop down menu
-function cd_meta_box_cb( $post )
+function silp_meta_box_cb( $post )
 {
 	$values = get_post_custom( $post->ID );
-	$selected = isset( $values['my_meta_box_select'] ) ? esc_attr( $values['my_meta_box_select'][0] ) : '';
+	$selected = isset( $values['silp_meta_box_select'] ) ? esc_attr( $values['silp_meta_box_select'][0] ) : '';
 	$options = get_option('silp_options');
     $silp_client = $options['silp_txt_one'];
     $silp_key = $options['silp_txt_two'];
@@ -37,12 +37,12 @@ function cd_meta_box_cb( $post )
 	$json_data2 = file_get_contents($silp_call);
 	$obj2=json_decode($json_data2, true);
 	
-	wp_nonce_field( 'my_meta_box_nonce', 'meta_box_nonce' );
+	wp_nonce_field( 'silp_meta_box_nonce', 'meta_box_nonce' );
 ?>
 		
 	<p>
-		<!--<label for="my_meta_box_select">Select a project:</label>-->
-		<select name="my_meta_box_select" id="my_meta_box_select">
+		<!--<label for="silp_meta_box_select">Select a project:</label>-->
+		<select name="silp_meta_box_select" id="silp_meta_box_select">
 	<option>Select a project:</option>
 <?php
 foreach($obj2[$silp_client] as $p)
@@ -72,14 +72,14 @@ echo "</option>";
 
 
 // SAVE the meta_box value
-add_action( 'save_post', 'cd_meta_box_save' );
-function cd_meta_box_save( $post_id )
+add_action( 'save_post', 'silp_meta_box_save' );
+function silp_meta_box_save( $post_id )
 {
 	// Bail if we're doing an auto save
 	if( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) return;
 	
 	// if our nonce isn't there, or we can't verify it, bail
-	if( !isset( $_POST['meta_box_nonce'] ) || !wp_verify_nonce( $_POST['meta_box_nonce'], 'my_meta_box_nonce' ) ) return;
+	if( !isset( $_POST['meta_box_nonce'] ) || !wp_verify_nonce( $_POST['meta_box_nonce'], 'silp_meta_box_nonce' ) ) return;
 	
 	// if our current user can't edit this post, bail
 	if( !current_user_can( 'edit_post' ) ) return;
@@ -92,15 +92,15 @@ function cd_meta_box_save( $post_id )
 	);
 	
 	// Probably a good idea to make sure your data is set
-	if( isset( $_POST['my_meta_box_text'] ) )
-		update_post_meta( $post_id, 'my_meta_box_text', wp_kses( $_POST['my_meta_box_text'], $allowed ) );
+	if( isset( $_POST['silp_meta_box_text'] ) )
+		update_post_meta( $post_id, 'silp_meta_box_text', wp_kses( $_POST['silp_meta_box_text'], $allowed ) );
 		
-	if( isset( $_POST['my_meta_box_select'] ) )
-		update_post_meta( $post_id, 'my_meta_box_select', esc_attr( $_POST['my_meta_box_select'] ) );
+	if( isset( $_POST['silp_meta_box_select'] ) )
+		update_post_meta( $post_id, 'silp_meta_box_select', esc_attr( $_POST['silp_meta_box_select'] ) );
 		
 	// This is purely my personal preference for saving checkboxes
-	$chk = ( isset( $_POST['my_meta_box_check'] ) && $_POST['my_meta_box_check'] ) ? 'on' : 'off';
-	update_post_meta( $post_id, 'my_meta_box_check', $chk );
+	$chk = ( isset( $_POST['silp_meta_box_check'] ) && $_POST['silp_meta_box_check'] ) ? 'on' : 'off';
+	update_post_meta( $post_id, 'silp_meta_box_check', $chk );
 }
 
 //Random string to embedcode
@@ -127,7 +127,7 @@ function random_string( )
 function silp_embed()  {
 
 global $post;
-$str = get_post_meta($post->ID, 'my_meta_box_select', true);
+$str = get_post_meta($post->ID, 'silp_meta_box_select', true);
 $yo = random_string();
 $kiss = $str;
 $options = get_option('silp_options');
