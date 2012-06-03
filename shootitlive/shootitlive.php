@@ -160,14 +160,14 @@ function silp_content($content = '') {
 
 //Settings page content
 
-add_action("admin_menu","jcorgcr_create_testmenu");
-function jcorgcr_create_testmenu(){
+add_action("admin_menu","silp_admin_menu");
+function silp_admin_menu(){
 add_menu_page(/*page title*/'Dashboard', /*Menu Title*/'Shootitlive',/*access*/'administrator', 'shootitlive', 'silp_dashboard_page',plugins_url('sil.ico', __FILE__));
 
-add_submenu_page( 'shootitlive', 'Settings', 'Settings', 'administrator', 'dashboard', 'jcorgcr_test_page' );
+add_submenu_page( 'shootitlive', 'Settings', 'Settings', 'administrator', 'dashboard', 'silp_settings_page' );
 
 }
-function jcorgcr_test_page() { /*handler for above menu item*/
+function silp_settings_page() { /*handler for above menu item*/
 
 ?>
 	<div class="wrap">
