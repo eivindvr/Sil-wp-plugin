@@ -48,21 +48,32 @@ function silp_meta_box_add()
 //API call & drop down menu
 function silp_meta_box_cb( $post )
 {
+	
+
 	$values = get_post_custom( $post->ID );
 	$selected = isset( $values['silp_meta_box_select'] ) ? esc_attr( $values['silp_meta_box_select'][0] ) : '';
 	$options = get_option('silp_options');
     $silp_client = $options['silp_txt_one'];
     $silp_key = $options['silp_txt_two'];
 	
+
+if ($options['silp_txt_one'] =='Enter Organisation Name' or $options['silp_txt_one'] =='')
+{
+//nothing here	
+echo "Please, enter API settings";
+}
+
+else {
 	$silp_call = "https://api.shootitlive.com/v1/projects/?client=$silp_client&token=$silp_key&embed=true";
-	
 	$json_data2 = file_get_contents($silp_call);
-	$obj2=json_decode($json_data2, true);
+	$obj2=json_decode($json_data2, true);	
+	
+	}	
 	
 	wp_nonce_field( 'silp_meta_box_nonce', 'meta_box_nonce' );
 ?>
-		
 	<p>
+	
 		<!--<label for="silp_meta_box_select">Select a project:</label>-->
 		<select name="silp_meta_box_select" id="silp_meta_box_select">
 	<option>Select a project:</option>
@@ -88,6 +99,8 @@ echo "</option>";
 	
  	
 <?php	
+
+
 
 
 }
