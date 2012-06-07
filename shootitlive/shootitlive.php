@@ -8,18 +8,14 @@ Version: 1.0
 Author URI: http://www.shootitlive.com
 */
 
-// Set-up Action and Filter Hooks
 register_activation_hook(__FILE__, 'silp_add_defaults');
 register_uninstall_hook(__FILE__, 'silp_delete_plugin_options');
 add_action('admin_init', 'silp_init' );
-add_action('admin_menu', 'silp_add_options_page');
-add_filter( 'plugin_action_links', 'silp_plugin_action_links', 10, 2 );
-
 
 
 
 // Delete options table entries ONLY when plugin deactivated AND deleted
-function posk_delete_plugin_options() {
+function silp_delete_plugin_options() {
 	delete_option('silp_options');
 }
 
