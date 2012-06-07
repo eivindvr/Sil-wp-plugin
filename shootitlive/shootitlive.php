@@ -8,12 +8,38 @@ Version: 1.0
 Author URI: http://www.shootitlive.com
 */
 
+// Set-up Action and Filter Hooks
+register_activation_hook(__FILE__, 'silp_add_defaults');
+register_uninstall_hook(__FILE__, 'silp_delete_plugin_options');
+add_action('admin_init', 'silp_init' );
+add_action('admin_menu', 'silp_add_options_page');
+add_filter( 'plugin_action_links', 'silp_plugin_action_links', 10, 2 );
+
+
+
 
 // Delete options table entries ONLY when plugin deactivated AND deleted
 function posk_delete_plugin_options() {
 	delete_option('silp_options');
 }
 
+// Define default option settings
+function silp_add_defaults() {
+	$tmp = get_option('silp_options');
+    if(($tmp['chk_default_options_db']=='1')||(!is_array($tmp))) {
+		delete_option('silp_options'); // so we don't have to reset all the 'off' checkboxes too! (don't think this is needed but leave for now)
+		$arr = array(	
+						"silp_txt_one" => "Enter Organisation Name",
+						"silp_txt_two" => "Enter API Key"
+		);
+		update_option('silp_options', $arr);
+	}
+}
+
+// Init plugin options to white list our options
+function silp_init(){
+	register_setting( 'silp_plugin_options', 'silp_options', 'silp_validate_options' );
+}
 
 // Add meta_box
 add_action( 'add_meta_boxes', 'silp_meta_box_add' );
@@ -206,10 +232,10 @@ function silp_settings_page() { /*handler for above menu item*/
 			</p>
 		</form>
 
-		<p style="margin-top:15px;">
+	<!--	<p style="margin-top:15px;">
 			<p style="font-style: italic;font-weight: bold;color: #26779a;">If you have found this starter kit at all useful, please consider making a <a href="https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=XKZXD2BHQ5UB2" target="_blank" style="color:#72a1c6;">donation</a>. Thanks.</p>
 		</p>
-
+-->
 	</div>
 		
 <?php } 
